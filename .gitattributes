@@ -2,4 +2,5 @@
 *.data -text
 *.png binary
 *.pdf binary
+*.mp4 binary
 *.joblib binary

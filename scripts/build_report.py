@@ -158,7 +158,7 @@ def build(final: bool = False) -> Path:
     )
     body = styles["ReportBody"]
     output = Path(
-        "reports/assignment_report.pdf" if final else "reports/assignment_report_DRAFT.pdf"
+        "MLOps_Assignment_2025AE05258.pdf" if final else "assignment_report_DRAFT.pdf"
     )
     document = SimpleDocTemplate(
         str(output),
@@ -204,6 +204,25 @@ def build(final: bool = False) -> Path:
         ]
         if index == 0:
             content.append(paragraph("Author: " + (evidence["author"].strip() or "PENDING")))
+            repository_href = escape(evidence["repository_url"], {'"': "&quot;"})
+            repository_link = (
+                f'Repository: <link href="{repository_href}" color="#146b78">'
+                "<u>GitHub Heart Disease Prediction</u></link>"
+            )
+            content.append(
+                Paragraph(repository_link, body)
+            )
+            video_target = evidence["video_url"] or evidence["video_path"]
+            video_href = escape(video_target.replace("\\", "/"), {'"': "&quot;"})
+            video_label = "Open MLOps_Recording.mp4" if evidence["video_path"] else "Open video"
+            video_link = (
+                f'Video: <link href="{video_href}" color="#146b78">'
+                f"<u>{escape(video_label)}</u></link> "
+                "(keep the video beside this PDF for offline access)"
+            )
+            content.append(
+                Paragraph(video_link, body)
+            )
         content.extend(paragraph(text) for text in page["paragraphs"])
         if page.get("table") == "headline":
             chosen = results["models"][results["champion"]]

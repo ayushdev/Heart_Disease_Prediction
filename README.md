@@ -17,10 +17,10 @@ passed Windows/Ubuntu checks, training, isolated serving, and GHCR publication.
 The released model `24f056bb0011` is deployed on Docker Desktop Kubernetes with two
 replicas and verified LoadBalancer access at http://localhost:8080/docs.
 [Monitoring evidence](reports/evidence/monitoring.json) records 120 controlled requests
-and two healthy API pod targets. All listed screenshots are saved. The narrated
-video remains outstanding by the author's choice to record it later.
-[The report](reports/assignment_report_DRAFT.pdf) remains a ten-page draft until
-the video is supplied and the final PDF is generated and visually reviewed.
+and two healthy API pod targets. All listed screenshots are saved. The root-level
+[MLOps recording](MLOps_Recording.mp4) is included, and the root-level
+[final report](MLOps_Assignment_2025AE05258.pdf) has exactly ten pages. Visually review the PDF
+before submission.
 
 Reported results and [model metadata](reports/evidence/model-metadata.json) come from
 that CI release. The earlier local experiment and Docker proof use model `8ef0882ba2ca`;
@@ -106,6 +106,18 @@ does not rewrite absolute artifact locations; inspect local tracking in place or
 reproduce it from the recorded configuration.
 
 ## Run and Verify the API
+
+After the one-time setup and training have created the local model bundle, start
+the local API and MLflow UI together from PowerShell:
+
+```powershell
+.\scripts\start_project.ps1
+```
+
+This reuses healthy services, starts only missing ones, and refuses to stop or
+replace an unrelated process using the requested ports. It writes service logs
+under `reports/`. The local API is on port 8000; the deployed Kubernetes API, when
+available, remains on port 8080.
 
 ```powershell
 .\.venv\Scripts\python.exe -m uvicorn heart_risk.api:app --host 127.0.0.1 --port 8000 --no-access-log
@@ -251,9 +263,13 @@ results and emits a ten-page PDF with page-count and overflow checks.
 1. Complete the real Docker, CI, Kubernetes, and monitoring executions above.
 2. Collect every genuine capture listed in [screenshots/evidence.json](screenshots/evidence.json).
 3. Fill the repository URL, author details, and actual video path or accessible URL.
-4. Follow [docs/demo-script.md](docs/demo-script.md) and record the working pipeline.
+4. Review the included [MLOps recording](MLOps_Recording.mp4).
 5. Regenerate the final report:
 
 ```powershell
 .\.venv\Scripts\python.exe scripts/build_report.py --final
 ```
+
+This command writes the ten-page `MLOps_Assignment_2025AE05258.pdf` at the repository
+root. The PDF links to the repository and to `MLOps_Recording.mp4` beside it for
+offline submission.

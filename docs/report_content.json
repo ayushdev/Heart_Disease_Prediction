@@ -3,10 +3,10 @@
     "title": "Heart Risk: Reproducible Classification",
     "subtitle": "AIMLCZG523 | Assignment 01 | End-to-end MLOps",
     "paragraphs": [
-      "This project treats a machine-learning result as a traceable software release. Its objective is to classify recorded heart-disease presence from the UCI Cleveland clinical measurements and serve the selected classifier through a validated, monitored API. Acquisition, feature processing, experiment comparison, packaging, automated checks, and deployment are explicit stages rather than ad hoc notebook actions.",
-      "The solution uses two established tabular classifiers: Logistic Regression and Random Forest. They share a deterministic holdout split, identical cross-validation folds, and fold-local preprocessing. Selection is based only on mean validation ROC-AUC. The untouched holdout is used for the final comparison after the selection decision is fixed. The small difference between the models' CV means does not demonstrate statistical superiority.",
-      "The deployment target is local Docker Desktop Kubernetes, an option explicitly permitted by the assignment. The architecture supports multiple stateless API replicas while keeping experiment tracking outside the prediction path. GitHub Actions is responsible for validation, training, container verification, and continuous delivery of a tested image. A local release command performs the deployment because hosted runners cannot reach a laptop's localhost.",
-      "This is an educational classifier, not a validated clinical device. The target describes disease status in the source dataset; it does not establish prospective cardiovascular risk. A returned probability is a model output, not an individualized medical guarantee. No deployment, CI run, screenshot, or recording is claimed unless its actual evidence exists."
+      "This report summarizes an end-to-end machine-learning workflow using the UCI Cleveland heart-disease dataset. It covers data preparation, model evaluation, experiment tracking, API serving, automated checks, and local deployment.",
+      "Logistic Regression and Random Forest were evaluated with the same data split and cross-validation approach. Preprocessing is fit within training folds. Model selection uses validation ROC-AUC, while the holdout set is reserved for final evaluation. The close validation results do not establish statistical superiority.",
+      "The selected pipeline is served through FastAPI on Docker Desktop Kubernetes. MLflow records experiments, and GitHub Actions checks code, tests, training, and container delivery. The hosted workflow publishes a tested image; local Kubernetes deployment is run separately.",
+      "This is an educational classifier, not a clinically validated device. It predicts the dataset's recorded disease label, not future cardiovascular risk. Model probabilities are not medical advice or guarantees."
     ],
     "table": "headline"
   },
@@ -14,10 +14,10 @@
     "title": "Architecture and Reproduction",
     "subtitle": "Data lineage, artifact boundaries, and environment isolation",
     "paragraphs": [
-      "The raw UCI snapshot is checked against a SHA-256 digest. A canonical cleaned CSV and split manifest then define the input to EDA and training. Model training exports one preprocessing-plus-classifier Pipeline, metadata, evaluation outputs, and MLflow runs. The serving application loads the trusted artifact once at startup and never trains, fetches data, or downloads a replacement model during inference.",
-      "Python 3.11 is used consistently across the Windows development environment, Ubuntu CI, and Linux container. The full dependency lock contains exact versions and distribution hashes. A smaller serving lock is constrained by that same environment, preventing accidental sklearn, NumPy, pandas, or joblib skew. Installation uses a fresh virtual environment, the requirements lock, and an explicit package install.",
-      "The reproduction order is environment installation, lint and tests, data preparation, EDA, training, offline inference, and API smoke verification. The README contains executable Windows commands and deployment instructions. The supplied PowerShell wrapper checks native process exit codes so a failed command cannot be hidden by a later successful step.",
-      "Generated MLflow storage is local and is not a shared production database. Uploaded experiment artifacts preserve the run evidence; metrics JSON, CSV tables, figures, and model bundles are portable. Absolute filesystem artifact paths in a copied SQLite database are not assumed to relocate automatically."
+      "The official source snapshot is validated before cleaning and splitting. Training produces a saved preprocessing-and-model pipeline with metadata and evaluation results. The API loads that trusted artifact at startup; inference does not train a new model or download data.",
+      "Python 3.11 and locked dependencies are used across development, CI, and the serving container. Separate full and serving requirements keep the training and runtime environments reproducible.",
+      "The README documents setup and the reproduction sequence: quality checks, data preparation, EDA, training, inference, and API verification. The PowerShell runner stops when a command fails.",
+      "MLflow uses local storage for this assignment. Portable results and model artifacts accompany the tracking data; the local tracking database is not presented as a shared production service."
     ],
     "figure": "reports/figures/architecture.png",
     "caption": "Original architecture: tested artifacts flow toward serving; telemetry flows separately."
@@ -26,22 +26,22 @@
     "title": "Data Provenance and Cleaning",
     "subtitle": "Official Cleveland subset; no third-party remapping",
     "paragraphs": [
-      "The source is the UCI Machine Learning Repository Heart Disease archive, specifically processed.cleveland.data. It contains 303 records and 13 predictors plus the num target. Although the assignment says 14+ features, the canonical processed subset has 14 columns including the target. One-hot encoding expands the model matrix; no synthetic patient measurements are invented to satisfy the wording.",
-      "The source target ranges from zero to four. Zero is mapped to absence and values one through four to presence. Original category codes are preserved: chest-pain type is 1-4, slope is 1-3, thal uses 3/6/7, and ca uses 0-3. Mixing these values with zero-indexed codes from republished CSVs would change their meaning, so both ingestion and API validation enforce the original contract.",
-      "The parser rejects malformed rows, invalid labels, unsupported categories, and non-finite values. Question marks become missing values. The official snapshot contains four missing ca entries and two missing thal entries. No duplicate records were found. Exact duplicates would be removed deterministically; identical predictors with conflicting targets raise an error for inspection.",
-      "The cleaned CSV deliberately retains missing feature values. Imputing the entire dataset before splitting would leak holdout or validation statistics. A stratified 80/20 split with seed 42 yields 242 training records and 61 test records. Checksums, row indices, schema version, class counts, and cleaning decisions are stored in data manifests. Dataset redistribution is attributed under CC BY 4.0."
+      "The project uses the official UCI Cleveland subset: 303 records, 13 predictors, and a disease-severity target. The assignment refers to 14 or more features; the canonical source has 13 predictors plus the target. No artificial predictors are added.",
+      "Severity is mapped to a binary disease-presence label. The source's original category codes are preserved and validated during both ingestion and API requests.",
+      "The cleaning process validates rows and values, converts missing markers to nulls, and records data provenance. Missing feature values remain in the cleaned dataset until model preprocessing, avoiding information leakage.",
+      "A reproducible stratified split and checksums identify the data used for analysis. The dataset source and attribution are documented in the repository."
     ],
     "figure": "reports/figures/class_balance.png",
-    "caption": "Class balance is shown for the training partition; full-source counts are 164 absent and 139 present."
+    "caption": "Class balance for the training partition; the source classes are reasonably balanced."
   },
   {
     "title": "EDA and Feature Processing",
     "subtitle": "Training-only interpretation and fold-local transformations",
     "paragraphs": [
-      "EDA uses only the training partition for modelling decisions. Outputs include distributions with disease-presence overlays, a numeric Pearson-correlation heatmap, class balance, missingness counts, and chest-pain category counts. Numeric correlations are not presented as correlations between arbitrarily numbered nominal categories. Every plot identifies its population and original units where applicable.",
-      "Age, resting blood pressure, serum cholesterol, maximum achieved heart rate, and oldpeak form the numeric block. A median imputer precedes StandardScaler. The remaining categorical or discrete fields use most-frequent imputation followed by one-hot encoding. This avoids telling Logistic Regression that thal code 6 has twice the magnitude of code 3. ca is treated as a small categorical count so its effect need not be linear.",
-      "A ColumnTransformer and sklearn Pipeline bind preprocessing to the classifier. GridSearchCV clones and fits that complete pipeline inside each training fold. Unseen categories are handled by the encoder, while the API rejects category values outside the documented data contract. Unit tests check learned numeric statistics against the training slice and confirm that test-time transformation does not mutate them.",
-      "The first experiment retains all 13 source predictors rather than performing unstable feature selection on this small sample. No target-derived features, global imputations, oversampling before cross-validation, or test-driven threshold adjustments are used. Histograms and categorical comparisons are descriptive associations, not evidence of causal clinical effects."
+      "Exploratory analysis is performed on the training partition and summarizes feature distributions, class balance, missingness, and relationships among selected variables. The plots are descriptive, not evidence of causal effects.",
+      "The model pipeline handles numeric and categorical features with suitable preprocessing. Categorical codes are treated as categories rather than ordered measurements.",
+      "Preprocessing and classification are combined in a single pipeline and fit within each cross-validation fold. This keeps validation data from influencing learned preprocessing and supports consistent inference.",
+      "The initial comparison uses the source predictors without target-derived features. The same documented feature contract is enforced by the API."
     ],
     "figure": "reports/figures/distributions.png",
     "caption": "Distributions generated from the fixed training set; missingness and correlation figures accompany the repository."
@@ -50,10 +50,10 @@
     "title": "Model Selection and Evaluation",
     "subtitle": "Shared folds, bounded searches, and a locked decision threshold",
     "paragraphs": [
-      "Logistic Regression explores C in {0.1, 1, 10} and class_weight in {None, balanced}: six candidates. Random Forest explores three depths, two minimum-leaf sizes, and two class-weight settings with 200 trees: twelve candidates. Both use the same five shuffled stratified folds and seed. This bounded search makes the comparison auditable and inexpensive enough to rerun in CI.",
-      "The selection criterion is mean training-validation ROC-AUC, with an exact numerical tie favoring Logistic Regression. Accuracy, precision, recall, F1, and ROC-AUC are retained for the best candidate from each family, with fold standard deviations. A prior-only DummyClassifier gives a ROC-AUC reference of 0.5. Cross-validation variability is reported rather than implying that the highest point estimate is definitive.",
-      "The classifier family and hyperparameters are locked before holdout evaluation. A threshold of 0.5 is fixed in configuration. Both family winners are evaluated for the final comparison, but their holdout results cannot change the selected champion. Precision and recall are included because false positives and false negatives carry different costs in a medical-screening context; this assignment does not establish those costs clinically.",
-      "The test set has only 61 observations. High holdout scores therefore should not be treated as an externally validated performance guarantee. Repeating the deterministic run is a reproducibility check, not permission to iterate parameters against test outcomes. Additional multicentre, prospective, calibration, and subgroup validation would be necessary before any clinical application."
+      "The comparison evaluates Logistic Regression and Random Forest using the same stratified cross-validation design and bounded hyperparameter searches. Both models use the same training data and fold-local preprocessing.",
+      "Validation ROC-AUC is the selection measure. Accuracy, precision, recall, F1, and ROC-AUC summarize model performance, with cross-validation variability reported alongside the averages.",
+      "The model choice is fixed before the holdout set is used. A consistent decision threshold is applied to both models, and holdout results are not used to retune the pipeline.",
+      "Results on this small historical dataset are exploratory, not evidence of general clinical performance. Further validation on representative populations would be needed before any clinical use."
     ],
     "table": "models"
   },
@@ -61,58 +61,58 @@
     "title": "Experiment Tracking and Packaging",
     "subtitle": "Inspectable MLflow runs and trusted model persistence",
     "paragraphs": [
-      "MLflow uses an explicitly configured local SQLite tracking URI and filesystem artifact root. A parent run records shared preprocessing choices, seed, fold count, data and split manifests, environment versions, and final results. Each candidate has a child run with parameters, fold scores, metric mean/standard deviation, and a CV ROC-AUC plot. Each family winner also has a logged reusable model and evaluation plot.",
-      "The serving bundle contains pipeline.joblib and metadata.json. Metadata records the schema, feature order, classes, threshold, model checksum/version, software versions, data/split/config hashes, MLflow run ID, and source identity. Inference verifies the checksum and core dependency versions before deserialization, then checks the fitted model's feature names and class order. A checksum checks integrity; it is not a substitute for trusting the artifact producer.",
-      "The first local tracking attempt exposed a default MLflow/skops compatibility issue involving numpy.dtype. The run failed visibly. The corrected implementation explicitly logs the locally trained model using cloudpickle and retains the failed run as diagnostic evidence. No model metric or tuning setting was changed to resolve packaging. Pickle, joblib, and cloudpickle artifacts must never be loaded from untrusted sources.",
-      "Serialization is tested against the original fitted pipeline, and the live API is checked against offline inference. The selected training artifact is embedded into the container instead of retrained at startup. This creates a direct link between the evaluated model and the model served by a release."
+      "MLflow organizes the experiment into an overall run and related model-search runs. It records configurations, evaluation metrics, and artifacts so the comparison can be inspected and reproduced.",
+      "The saved serving bundle contains both preprocessing and the selected classifier, along with metadata describing the model and expected input schema. Inference checks the bundle before loading it; serialized models must come from a trusted source.",
+      "The project verifies that the saved model behaves consistently with the fitted pipeline. The container includes the selected artifact and does not train a replacement at startup.",
+      "This packaging approach keeps experiment evaluation and API inference connected while allowing each part to run in its intended environment."
     ],
     "figure": "screenshots/mlflow.png",
-    "caption": "Real local MLflow evidence; a missing capture remains explicitly pending."
+    "caption": "Local MLflow experiment showing the tracked run and linked model-search results."
   },
   {
     "title": "Automated Tests and CI/CD",
     "subtitle": "Failure propagation and delivery of the same tested image",
     "paragraphs": [
-      "Pytest covers parsing, label mapping, invalid categories, missing values, checksum failures, disjoint reproducible splits, model determinism, serialization, train-only statistics, API validation, probability semantics, privacy-conscious logs, and delivery configuration. Small deterministic fixtures and mocked acquisition failures keep unit tests independent of the network and a real cluster. Full training uses the pinned real dataset as a separate integration gate.",
-      "GitHub Actions validates Python on Windows and Ubuntu, checks the hash-locked environment, runs Ruff lint/format checks and pytest, and uploads test reports. A dependent Linux job prepares the data, generates EDA, trains both classifiers, logs MLflow, and uploads model/evaluation artifacts. The container job downloads that bundle, builds the API image, and smoke-tests it without host model mounts.",
-      "Only trusted pushes to main may publish the already-tested image to GHCR. Authentication uses the workflow's scoped GITHUB_TOKEN, not a committed password. The release manifest records the registry digest, model hash, source revision, and CI URL. Pull requests cannot publish. Action dependencies are pinned to commit SHAs, and required stages do not use continue-on-error.",
-      "Artifact and log collection uses always-run steps without weakening test gates. Cleanup may tolerate an absent test container, but lint, tests, training, build, smoke verification, and publishing do not mask failures. Delivery to GHCR is automated; local Kubernetes deployment is an explicit user-invoked release step because the cluster is not routable from hosted runners."
+      "Unit tests cover the data contract, preprocessing, model behavior, API validation, and delivery configuration. A separate integration workflow exercises the complete training and serving path.",
+      "GitHub Actions runs quality checks on Windows and Ubuntu before training on Linux. The resulting model is packaged into a container and smoke-tested in isolation.",
+      "On trusted pushes, the tested image is published to GitHub Container Registry and identified by its immutable digest. Pull requests run validation without publishing an image.",
+      "Required checks fail the workflow when code, tests, training, or container verification fails. Logs and artifacts are retained to support diagnosis and reproducibility."
     ],
     "figure": "screenshots/github-actions.png",
-    "caption": "Successful hosted run 39396167399: cross-platform checks, training, isolated serving, and image publication."
+    "caption": "Successful hosted workflow showing cross-platform checks, training, container verification, and image publication."
   },
   {
     "title": "API and Container Isolation",
     "subtitle": "Validated requests, deterministic inference, and runtime boundaries",
     "paragraphs": [
-      "POST /predict accepts one JSON record with exactly the 13 original feature names. Numeric values must be finite and in their basic positive/nonnegative domains. ca and thal may be explicitly null; missing keys and invalid original-UCI categories are rejected with HTTP 422. Extra fields and implicit string/boolean coercions are rejected so callers cannot silently change the input contract.",
-      "Responses include a binary prediction, disease_probability, confidence, model_version, and request_id. disease_probability is P(class 1); confidence is the probability assigned to the returned class. Prediction uses a fixed 0.5 threshold. These values are not claims of calibrated medical certainty. The local smoke check compares predictions with the trusted offline artifact and exercises an invalid category request.",
-      "The Dockerfile uses a digest-pinned official Python 3.11 base, a smaller hash-locked serving environment, and a non-root process. The image includes the pre-trained artifact and necessary source but excludes raw data, tracking storage, virtual environments, credentials, and screenshots. It does not download data or train during build or startup. Health and readiness endpoints support both container checks and orchestration.",
-      "The Linux image was built and exercised without mounting the host model directory. Local container predictions matched offline inference, invalid original-UCI codes returned HTTP 422, and metrics were exposed. Hosted CI independently built and verified its image before publishing that same image by digest. The earlier local model is 8ef0882ba2ca; the deployed CI model is 24f056bb0011. Their evaluation metrics and sample probabilities agree."
+      "The API accepts a patient record that follows the documented feature schema. It validates required fields, data types, and category codes, returning a client error for unsupported input.",
+      "Responses provide a binary prediction, disease probability, confidence for the returned class, model version, and request identifier. Probabilities are model outputs, not calibrated medical certainty.",
+      "The Docker image packages the trained pipeline with a locked serving environment and runs as a non-root user. The model is included in the image, so startup does not download data or retrain.",
+      "The isolated container was built and tested without host model mounts. Smoke checks verified prediction behavior, invalid-input handling, and the metrics endpoint."
     ],
     "figure": "screenshots/api-prediction.png",
-    "caption": "Actual local API response; screenshots/docker.png and container.json record the separate no-mount Docker check."
+    "caption": "Swagger response from the local API; separate isolated-container verification is recorded in the delivery evidence."
   },
   {
     "title": "Kubernetes and Operational Monitoring",
     "subtitle": "Stateless replicas, explicit exposure, and per-pod telemetry",
     "paragraphs": [
-      "The API Deployment runs two stateless replicas in a dedicated heart-risk namespace with resource requests/limits, startup/readiness/liveness probes, a non-root security context, and rolling updates. A LoadBalancer Service exposes localhost:8080 on Docker Desktop. The release script explicitly targets docker-desktop, renders manifests through a YAML parser, waits for rollout and service ingress, then checks the model version through the real service endpoint.",
-      "Prometheus uses namespace-scoped pod discovery and a Role limited to reading pods. Each API pod is scraped separately, avoiding counter discontinuities from scraping a load-balanced service. The provisioned Grafana dashboard shows request rate, p95 latency, errors by status, prediction counts, and pod scrape availability. Its datasource uses cluster DNS, not a container's localhost.",
-      "Request logs contain timestamps, generated request IDs, templated routes, status, elapsed time, and model version. Patient feature bodies and secrets are not logged; unmatched paths use a bounded label. Grafana's password is supplied through a Kubernetes Secret. Monitoring interfaces are accessed through loopback port-forwards rather than the public-facing API Service.",
-      "The controlled traffic script sends valid and invalid sample requests, then requires at least two healthy API scrape targets and a populated request-rate series. This verifies operational monitoring, not prediction accuracy or concept drift, which would require delayed ground-truth labels. Monitoring storage is intentionally ephemeral with short retention for this local assignment; a production environment would require durable storage, authentication, TLS, and retention policies."
+      "The API runs as a small set of stateless Kubernetes replicas behind a local LoadBalancer. Health probes and deployment settings support safe rollout and availability checks.",
+      "Prometheus discovers and scrapes API pods individually. Grafana presents request volume, latency, response status, prediction counts, and service availability.",
+      "Request logs include operational metadata but omit patient feature values. Monitoring interfaces are accessed locally, and Grafana credentials are stored in a Kubernetes Secret.",
+      "A controlled traffic check confirmed that both API pods were monitored and that request metrics were populated. This demonstrates operations monitoring, not model accuracy or drift detection. Local monitoring storage is temporary and is not a production retention setup."
     ],
     "figure": "screenshots/grafana.png",
-    "caption": "Controlled traffic: 120 requests, two healthy API pod targets, and verified Kubernetes LoadBalancer inference."
+    "caption": "Controlled API traffic, healthy pod monitoring, and verified local LoadBalancer access."
   },
   {
     "title": "Evidence, Limitations, and Submission",
     "subtitle": "Measured outcomes and an explicit completion boundary",
     "paragraphs": [
-      "The primary result is a reproducible, traceable classifier-to-API workflow. Logistic Regression and Random Forest both exceed the prior-only validation baseline in this experiment. The selected model's holdout metrics are observations on the fixed test set, not guarantees for new populations. The dataset is small, historical, and clinical rather than a representative prospective screening cohort; categorical definitions and measurement availability constrain external use.",
-      "The evidence manifest records genuine screenshot paths, execution-check outputs, repository URL, and video location. The PDF builder marks incomplete reports as DRAFT and refuses final mode when mandatory items are missing. This prevents a deployment manifest, a video script, or a placeholder image from being presented as evidence of execution. Automated page-count validation checks the requested ten-page length.",
-      "The final submission includes source, the original and cleaned attributed dataset, dependency locks, EDA/training/inference scripts, tests, GitHub Actions YAML, Dockerfile, Kubernetes and monitoring manifests, screenshots, the final PDF, local access instructions, and a short narrated recording. The student should explain preprocessing leakage prevention, model selection, image identity, failure gates, and metric semantics in their own words and follow the course's rules on assistance disclosure.",
-      "References: Janosi, A., Steinbrunn, W., Pfisterer, M., and Detrano, R. (1989), Heart Disease [Dataset], UCI Machine Learning Repository, https://doi.org/10.24432/C52P4X, CC BY 4.0. Implementation references: scikit-learn user guide (pipelines and cross-validation); MLflow tracking documentation; FastAPI documentation; Docker Desktop Kubernetes documentation; GitHub Actions package publishing documentation; Prometheus and Grafana documentation. These sources inform library use, not copied student project implementations."
+      "This project demonstrates a reproducible workflow from data preparation through monitored API serving. Results describe a small, historical dataset and should not be treated as performance guarantees for other populations.",
+      "The repository includes the source, data instructions, tests, experiment outputs, deployment configuration, screenshots, recording, and report. The report builder checks for required evidence and the requested page count.",
+      "The local deployment is intended for an assignment demonstration. Clinical use would require independent validation, clinical review, and appropriate security and operational controls.",
+      "The dataset is attributed to Janosi and colleagues and the UCI Machine Learning Repository under CC BY 4.0. Library and platform documentation informed the implementation."
     ],
     "table": "evidence"
   }

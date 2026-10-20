@@ -1,7 +1,7 @@
 {
   "author": "Ayush Kumar, 2025AE05258",
   "repository_url": "https://github.com/ayushdev/Heart_Disease_Prediction",
-  "video_path": "",
+  "video_path": "MLOps_Recording.mp4",
   "video_url": "",
   "captures": [
     {"path": "screenshots/api-docs.png", "caption": "Actual local FastAPI OpenAPI documentation"},
