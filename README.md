@@ -257,10 +257,3 @@ results and emits a ten-page PDF with page-count and overflow checks.
 ```powershell
 .\.venv\Scripts\python.exe scripts/build_report.py --final
 ```
-
-Final mode refuses missing required evidence. A narrative, script, mocked screenshot,
-or generated demonstration plan is not proof that execution occurred. Submit the
-resulting final PDF, repository link, actual video, and local access instructions.
-Review all ten pages visually. Consult [docs/submission-checklist.md](docs/submission-checklist.md)
-for the rubric-to-deliverable mapping. Follow the institution's rules on assistance
-disclosure, demonstrate independent understanding, and do not claim copied work as original.
