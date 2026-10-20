@@ -1,0 +1,22 @@
+{
+  "author": "",
+  "repository_url": "https://github.com/ayushdev/Heart_Disease_Prediction",
+  "video_path": "",
+  "video_url": "",
+  "captures": [
+    {"path": "screenshots/api-docs.png", "caption": "Actual local FastAPI OpenAPI documentation"},
+    {"path": "screenshots/api-prediction.png", "caption": "Actual JSON prediction from the running API"},
+    {"path": "screenshots/mlflow.png", "caption": "Actual MLflow experiment runs and logged metrics"},
+    {"path": "screenshots/github-actions.png", "caption": "Successful hosted CI with training and uploaded artifacts"},
+    {"path": "screenshots/docker.png", "caption": "Isolated Docker build and sample prediction"},
+    {"path": "screenshots/kubernetes.png", "caption": "Docker Desktop Kubernetes replicas and LoadBalancer"},
+    {"path": "screenshots/grafana.png", "caption": "Populated operational dashboard during controlled traffic"}
+  ],
+  "checks": {
+    "local_api": "reports/evidence/local-api.json",
+    "container": "reports/evidence/container.json",
+    "kubernetes": "reports/evidence/kubernetes.json",
+    "monitoring": "reports/evidence/monitoring.json",
+    "release": "reports/evidence/release.json"
+  }
+}

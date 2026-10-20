@@ -1,0 +1,9 @@
+*
+!pyproject.toml
+!requirements-serving.txt
+!src/
+!src/heart_risk/
+!src/heart_risk/*.py
+!models/
+!models/pipeline.joblib
+!models/metadata.json

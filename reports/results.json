@@ -1,0 +1,83 @@
+{
+  "champion": "logistic_regression",
+  "run_id": "62b2eccca2924688b0b8ca1965527d75",
+  "selection": "Five-fold training CV ROC-AUC; holdout excluded from selection",
+  "train_rows": 242,
+  "test_rows": 61,
+  "baseline_cv_auc": 0.5,
+  "models": {
+    "logistic_regression": {
+      "parameters": {
+        "classifier__C": 0.1,
+        "classifier__class_weight": "balanced"
+      },
+      "cv": {
+        "accuracy": {
+          "mean": 0.8267006802721089,
+          "std": 0.03720235665694058
+        },
+        "precision": {
+          "mean": 0.8378763322497338,
+          "std": 0.06867397225936546
+        },
+        "recall": {
+          "mean": 0.7849802371541503,
+          "std": 0.08299830584971248
+        },
+        "f1": {
+          "mean": 0.805077519379845,
+          "std": 0.04347351512860631
+        },
+        "roc_auc": {
+          "mean": 0.9110452349582785,
+          "std": 0.030478590517862465
+        }
+      },
+      "holdout": {
+        "accuracy": 0.8852459016393442,
+        "precision": 0.8387096774193549,
+        "recall": 0.9285714285714286,
+        "f1": 0.8813559322033898,
+        "roc_auc": 0.9653679653679654
+      }
+    },
+    "random_forest": {
+      "parameters": {
+        "classifier__class_weight": "balanced",
+        "classifier__max_depth": 4,
+        "classifier__min_samples_leaf": 3,
+        "classifier__n_estimators": 200
+      },
+      "cv": {
+        "accuracy": {
+          "mean": 0.8021258503401361,
+          "std": 0.054436116305999115
+        },
+        "precision": {
+          "mean": 0.8168342245989304,
+          "std": 0.05682467179040323
+        },
+        "recall": {
+          "mean": 0.7407114624505929,
+          "std": 0.12532449406071175
+        },
+        "f1": {
+          "mean": 0.7697170690451766,
+          "std": 0.07780254200556411
+        },
+        "roc_auc": {
+          "mean": 0.9093791876400573,
+          "std": 0.035082734144502886
+        }
+      },
+      "holdout": {
+        "accuracy": 0.8688524590163934,
+        "precision": 0.8125,
+        "recall": 0.9285714285714286,
+        "f1": 0.8666666666666667,
+        "roc_auc": 0.9534632034632036
+      }
+    }
+  },
+  "model_version": "8ef0882ba2ca"
+}

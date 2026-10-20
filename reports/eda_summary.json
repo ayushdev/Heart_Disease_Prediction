@@ -1,0 +1,24 @@
+{
+  "population": "training only",
+  "rows": 242,
+  "missing": {
+    "age": 0,
+    "sex": 0,
+    "cp": 0,
+    "trestbps": 0,
+    "chol": 0,
+    "fbs": 0,
+    "restecg": 0,
+    "thalach": 0,
+    "exang": 0,
+    "oldpeak": 0,
+    "slope": 0,
+    "ca": 1,
+    "thal": 1,
+    "target": 0
+  },
+  "class_counts": {
+    "0": 131,
+    "1": 111
+  }
+}

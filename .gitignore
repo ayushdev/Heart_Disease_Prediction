@@ -1,0 +1,27 @@
+.venv*/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+build/
+dist/
+.env
+*.log
+mlflow.db*
+mlartifacts/
+mlruns/
+models/
+reports/tests.xml
+reports/evidence/*.json
+reports/evidence/deployment.yaml
+!reports/evidence/status.json
+!reports/evidence/local-api.json
+!reports/evidence/container.json
+!reports/evidence/kubernetes.json
+!reports/evidence/monitoring.json
+!reports/evidence/release.json
+MLOps Assignment 1 Instructions.pdf
+docs/RESUME.md
