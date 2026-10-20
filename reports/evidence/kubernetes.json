@@ -1,0 +1,15 @@
+{
+  "verified_at": "2026-10-20T09:09:36.459617+00:00",
+  "base_url": "http://localhost:8080",
+  "status": "passed",
+  "prediction": {
+    "prediction": 0,
+    "disease_probability": 0.4598359143180713,
+    "confidence": 0.5401640856819288,
+    "model_version": "24f056bb0011",
+    "request_id": "ffc5976078d94228bdbe68cf8ac6de3e"
+  },
+  "invalid_status": 422,
+  "metrics_available": true,
+  "offline_parity_checked": false
+}

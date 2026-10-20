@@ -1,0 +1,43 @@
+{
+  "family": "logistic_regression",
+  "model_version": "24f056bb0011",
+  "model_sha256": "24f056bb001146ea4592d4f658c0ab58ae41b6ddec25c49cc0757dd5a8f8cf83",
+  "features": [
+    "age",
+    "sex",
+    "cp",
+    "trestbps",
+    "chol",
+    "fbs",
+    "restecg",
+    "thalach",
+    "exang",
+    "oldpeak",
+    "slope",
+    "ca",
+    "thal"
+  ],
+  "schema_version": "uci-cleveland-v1",
+  "classes": [
+    0,
+    1
+  ],
+  "threshold": 0.5,
+  "python": "3.11.17",
+  "versions": {
+    "numpy": "2.4.6",
+    "pandas": "2.3.3",
+    "scikit-learn": "1.7.2",
+    "joblib": "1.6.0",
+    "mlflow": "3.17.1",
+    "fastapi": "0.147.0",
+    "pydantic": "2.14.1"
+  },
+  "run_id": "58932fba143743fea1fb7fa353d7c867",
+  "source_revision": "515aa7153bf5096ff88a35cf0bff91e744ede054",
+  "source_sha256": "09021193848356476dc5f5da945add6c87613d2f6e8cccc4d25e70808ecb3e2f",
+  "config_sha256": "9bad94aa7a6468591e0e6f8019cc30e265c36df3cc6db10e4de02ea417c224a2",
+  "data_sha256": "e81973d3356c231ed8903aab16f5faa72d9679eb8ef6dc98a602b25df3f5d23d",
+  "split_sha256": "8149681459af72f29b495b785107f37c6e58b80e4c0cd50aabf5a2c63a9ac70f",
+  "confidence_semantics": "Probability of the returned class; not medical certainty"
+}

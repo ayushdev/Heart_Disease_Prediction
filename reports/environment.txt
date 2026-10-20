@@ -32,9 +32,9 @@ google-auth==2.62.0
 graphene==3.4.3
 graphql-core==3.2.13
 graphql-relay==3.2.0
+gunicorn==26.2.0
 h11==0.16.0
-# Editable install with no version control (heart-risk-mlops==1.0.0)
--e c:\users\ayushkum\onedrive - intel corporation\desktop\m\mlops assignment\assignment
+-e git+https://github.com/ayushdev/Heart_Disease_Prediction@515aa7153bf5096ff88a35cf0bff91e744ede054#egg=heart_risk_mlops
 httpcore==1.0.9
 httpx==0.28.1
 huey==3.4.0
@@ -81,7 +81,6 @@ pytest-cov==7.1.0
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.4
 pytz==2026.5
-pywin32==312
 PyYAML==6.0.3
 reportlab==4.5.1
 requests==2.34.2

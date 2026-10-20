@@ -33,6 +33,8 @@ def read_json(path: str) -> dict | list:
 
 def missing_evidence(evidence: dict) -> list[str]:
     missing = []
+    if not evidence.get("author", "").strip():
+        missing.append("author name and student ID")
     repository = urllib.parse.urlsplit(evidence["repository_url"])
     if (
         repository.scheme != "https"
@@ -200,6 +202,8 @@ def build(final: bool = False) -> Path:
             Paragraph(escape(page["subtitle"]), styles["ReportCaption"]),
             Spacer(1, 9),
         ]
+        if index == 0:
+            content.append(paragraph("Author: " + (evidence["author"].strip() or "PENDING")))
         content.extend(paragraph(text) for text in page["paragraphs"])
         if page.get("table") == "headline":
             chosen = results["models"][results["champion"]]

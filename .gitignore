@@ -23,5 +23,7 @@ reports/evidence/deployment.yaml
 !reports/evidence/kubernetes.json
 !reports/evidence/monitoring.json
 !reports/evidence/release.json
+!reports/evidence/model-metadata.json
+!reports/evidence/kubernetes-resources.json
 MLOps Assignment 1 Instructions.pdf
 docs/RESUME.md

@@ -1,0 +1,8 @@
+{
+  "image": "ghcr.io/ayushdev/heart_disease_prediction@sha256:0717a3f5569bd20e5a1a02ea320e48cc427fdf66af80c7f191967935cd664d24",
+  "model_version": "24f056bb0011",
+  "model_sha256": "24f056bb001146ea4592d4f658c0ab58ae41b6ddec25c49cc0757dd5a8f8cf83",
+  "data_sha256": "e81973d3356c231ed8903aab16f5faa72d9679eb8ef6dc98a602b25df3f5d23d",
+  "source_revision": "515aa7153bf5096ff88a35cf0bff91e744ede054",
+  "ci_url": "https://github.com/ayushdev/Heart_Disease_Prediction/actions/runs/39396167399"
+}

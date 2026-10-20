@@ -79,7 +79,7 @@
       "Artifact and log collection uses always-run steps without weakening test gates. Cleanup may tolerate an absent test container, but lint, tests, training, build, smoke verification, and publishing do not mask failures. Delivery to GHCR is automated; local Kubernetes deployment is an explicit user-invoked release step because the cluster is not routable from hosted runners."
     ],
     "figure": "screenshots/github-actions.png",
-    "caption": "Hosted workflow evidence must be captured after repository creation and a real successful run."
+    "caption": "Successful hosted run 39396167399: cross-platform checks, training, isolated serving, and image publication."
   },
   {
     "title": "API and Container Isolation",
@@ -88,10 +88,10 @@
       "POST /predict accepts one JSON record with exactly the 13 original feature names. Numeric values must be finite and in their basic positive/nonnegative domains. ca and thal may be explicitly null; missing keys and invalid original-UCI categories are rejected with HTTP 422. Extra fields and implicit string/boolean coercions are rejected so callers cannot silently change the input contract.",
       "Responses include a binary prediction, disease_probability, confidence, model_version, and request_id. disease_probability is P(class 1); confidence is the probability assigned to the returned class. Prediction uses a fixed 0.5 threshold. These values are not claims of calibrated medical certainty. The local smoke check compares predictions with the trusted offline artifact and exercises an invalid category request.",
       "The Dockerfile uses a digest-pinned official Python 3.11 base, a smaller hash-locked serving environment, and a non-root process. The image includes the pre-trained artifact and necessary source but excludes raw data, tracking storage, virtual environments, credentials, and screenshots. It does not download data or train during build or startup. Health and readiness endpoints support both container checks and orchestration.",
-      "Docker isolation must be demonstrated with a real image build and request, without mounting the host model directory. A passing in-process test or a working Python server is not equivalent to Docker proof. This report distinguishes the completed local API check from any still-pending container run."
+      "The Linux image was built and exercised without mounting the host model directory. Local container predictions matched offline inference, invalid original-UCI codes returned HTTP 422, and metrics were exposed. Hosted CI independently built and verified its image before publishing that same image by digest. The earlier local model is 8ef0882ba2ca; the deployed CI model is 24f056bb0011. Their evaluation metrics and sample probabilities agree."
     ],
     "figure": "screenshots/api-prediction.png",
-    "caption": "Actual running API response; separate Docker proof is required in screenshots/docker.png."
+    "caption": "Actual local API response; screenshots/docker.png and container.json record the separate no-mount Docker check."
   },
   {
     "title": "Kubernetes and Operational Monitoring",
@@ -103,7 +103,7 @@
       "The controlled traffic script sends valid and invalid sample requests, then requires at least two healthy API scrape targets and a populated request-rate series. This verifies operational monitoring, not prediction accuracy or concept drift, which would require delayed ground-truth labels. Monitoring storage is intentionally ephemeral with short retention for this local assignment; a production environment would require durable storage, authentication, TLS, and retention policies."
     ],
     "figure": "screenshots/grafana.png",
-    "caption": "Actual Grafana traffic evidence and a Kubernetes LoadBalancer capture are required to complete deployment."
+    "caption": "Controlled traffic: 120 requests, two healthy API pod targets, and verified Kubernetes LoadBalancer inference."
   },
   {
     "title": "Evidence, Limitations, and Submission",

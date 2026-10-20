@@ -1,6 +1,6 @@
 {
   "champion": "logistic_regression",
-  "run_id": "62b2eccca2924688b0b8ca1965527d75",
+  "run_id": "58932fba143743fea1fb7fa353d7c867",
   "selection": "Five-fold training CV ROC-AUC; holdout excluded from selection",
   "train_rows": 242,
   "test_rows": 61,
@@ -79,5 +79,5 @@
       }
     }
   },
-  "model_version": "8ef0882ba2ca"
+  "model_version": "24f056bb0011"
 }

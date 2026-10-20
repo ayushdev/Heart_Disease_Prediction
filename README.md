@@ -11,10 +11,20 @@ The official data, EDA, two-model experiment, model bundle, unit tests, and loca
 have been executed here. Measured results are in [reports/results.json](reports/results.json).
 The isolated Docker image was built and verified on Linux with no host mounts;
 [container evidence](reports/evidence/container.json) records prediction parity,
-HTTP 422 validation, and exposed metrics. All 36 tests and both Ruff gates pass locally.
-Kubernetes execution, hosted GitHub Actions, remaining screenshots, and the narrated
-video remain submission gates. [The report](reports/assignment_report_DRAFT.pdf)
-is explicitly a ten-page draft until these gates are satisfied.
+HTTP 422 validation, and exposed metrics. All 39 tests and both Ruff gates pass locally.
+[Hosted CI](https://github.com/ayushdev/Heart_Disease_Prediction/actions/runs/39396167399)
+passed Windows/Ubuntu checks, training, isolated serving, and GHCR publication.
+The released model `24f056bb0011` is deployed on Docker Desktop Kubernetes with two
+replicas and verified LoadBalancer access at http://localhost:8080/docs.
+[Monitoring evidence](reports/evidence/monitoring.json) records 120 controlled requests
+and two healthy API pod targets. All listed screenshots are saved. The narrated
+video remains outstanding by the author's choice to record it later.
+[The report](reports/assignment_report_DRAFT.pdf) remains a ten-page draft until
+the video is supplied and the final PDF is generated and visually reviewed.
+
+Reported results and [model metadata](reports/evidence/model-metadata.json) come from
+that CI release. The earlier local experiment and Docker proof use model `8ef0882ba2ca`;
+the two environments produced identical evaluation metrics and sample probabilities.
 
 | Model | CV ROC-AUC mean (SD) | Test accuracy | Test precision | Test recall | Test ROC-AUC |
 | --- | --- | --- | --- | --- | --- |
@@ -178,6 +188,15 @@ The file should contain your chosen password without a trailing newline. Never s
 it to chat or commit it. Delete the temporary file after safely recording the password.
 GHCR packages can be public for unauthenticated pulls; private packages require a
 locally created imagePullSecret. Do not put registry credentials into manifests.
+
+An existing local `grafana-admin` Secret can be copied directly to the clipboard
+without displaying its password:
+
+```powershell
+kubectl --context docker-desktop -n heart-risk get secret grafana-admin -o 'jsonpath={.data.password}' | ForEach-Object { [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($_)) } | Set-Clipboard
+```
+
+Log in as `admin`, paste the password, and clear the clipboard after use.
 
 ```powershell
 ./scripts/deploy_local.ps1 -ReleaseManifest reports/evidence/release.json
